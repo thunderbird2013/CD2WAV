@@ -11,13 +11,28 @@
 CDDAReader::CDDAReader() : cdio(nullptr) {}
 
 bool CDDAReader::open(const std::string& path) {
-    cdio = cdio_open(path.c_str(), DRIVER_BINCUE);
-    if (!cdio) {
-        std::cerr << "[CDDAReader] Konnte CD-Quelle nicht öffnen." << std::endl;
-        return false;
+    static const std::vector<CdIoDriver_t> drivers = {
+        DRIVER_BINCUE,
+        DRIVER_CDRDAO,
+        DRIVER_DEVICE,
+        DRIVER_FITS,
+        DRIVER_IODAS,
+        DRIVER_ISO,
+        DRIVER_NRG,
+        DRIVER_EXTERNAL,
+        DRIVER_UNKNOWN  // Letzter Versuch: automatische Erkennung
+    };
+
+    for (auto driver : drivers) {
+        cdio = cdio_open(path.c_str(), driver);
+        if (cdio) {
+            std::cout << "[CDDAReader] CD-Quelle geöffnet mit Treiber: " << cdio_driver_describe(driver) << std::endl;
+            return true;
+        }
     }
-    std::cout << "[CDDAReader] CD-Quelle geöffnet." << std::endl;
-    return true;
+
+    std::cerr << "[CDDAReader] Konnte CD-Quelle nicht öffnen (alle Treiber fehlgeschlagen)." << std::endl;
+    return false;
 }
 
 bool CDDAReader::load_toc() {
