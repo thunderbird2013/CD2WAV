@@ -1,1 +1,0 @@
-  -L/mingw64/lib  -lcdio -lm -lwinmm -liconv -lcdio_paranoia -lcdio_cdda -lcdio -lm -lwinmm -liconv -lcddb -liconv -lcdio -lm -lwinmm -lcdio_paranoia -lcdio_cdda -lcddb -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 

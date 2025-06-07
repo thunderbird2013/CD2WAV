@@ -1,7 +1,0 @@
-H:/Devel/CPP/CD2WAV/build-mingw64/CMakeFiles/cd_iso_to_wav.dir
-H:/Devel/CPP/CD2WAV/build-mingw64/CMakeFiles/edit_cache.dir
-H:/Devel/CPP/CD2WAV/build-mingw64/CMakeFiles/rebuild_cache.dir
-H:/Devel/CPP/CD2WAV/build-mingw64/CMakeFiles/list_install_components.dir
-H:/Devel/CPP/CD2WAV/build-mingw64/CMakeFiles/install.dir
-H:/Devel/CPP/CD2WAV/build-mingw64/CMakeFiles/install/local.dir
-H:/Devel/CPP/CD2WAV/build-mingw64/CMakeFiles/install/strip.dir
