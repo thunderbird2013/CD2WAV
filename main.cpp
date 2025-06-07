@@ -1,4 +1,3 @@
-// main.cpp
 #include "cdda_reader.hpp"
 #include "wav_writer.hpp"
 #include "cddb_lookup.hpp"
@@ -7,11 +6,11 @@
 #include <string>
 #include <iomanip>
 #include <windows.h>
-#include <bits/basic_string.h>
+#include <filesystem>  // hinzugefügt
+
+namespace fs = std::filesystem;
 
 int main(int argc, char* argv[]) {
-    
-    // Setze Icon
     HWND hwnd = GetConsoleWindow();
     HICON hIcon = (HICON)LoadImage(NULL, "myapp.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
     if (hIcon) {
@@ -19,8 +18,9 @@ int main(int argc, char* argv[]) {
         SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
     }
 
-    SetConsoleOutputCP(CP_UTF8); // UTF-8 aktivieren
+    SetConsoleOutputCP(CP_UTF8);
     std::cout << "[CHECK] main läuft" << std::endl;
+
     std::string input_path;
     if (argc > 1) {
         input_path = argv[1];
@@ -28,6 +28,10 @@ int main(int argc, char* argv[]) {
         std::cout << "Pfad zu CD oder ISO angeben: ";
         std::getline(std::cin, input_path);
     }
+
+    // Ordnername aus Datei ableiten (z. B. CD2.BIN → CD2)
+    std::string output_folder = fs::path(input_path).stem().string();
+    fs::create_directory(output_folder);
 
     CDDAReader reader;
     if (!reader.open(input_path)) {
@@ -49,6 +53,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Track " << (i + 1) << " Start-LSN: " << offset << std::endl;
         offsets.push_back(offset);
     }
+
     int total_frames = reader.get_total_disc_length_frames();
     std::cout << "Gesamtlänge in Frames: " << total_frames << std::endl;
 
@@ -63,19 +68,13 @@ int main(int argc, char* argv[]) {
         std::vector<uint8_t> pcm_data;
         std::cout << "Lese Track " << (i + 1) << "..." << std::endl;
 
-        bool ok = reader.read_track(i + 1, pcm_data);  // 👈 zuerst deklarieren
+        bool ok = reader.read_track(i + 1, pcm_data);
         std::cout << "[MAIN] Rückgabe read_track: " << ok << std::endl;
-
         if (!ok) {
             std::cerr << "Fehler beim Lesen von Track " << i + 1 << std::endl;
             continue;
         }
 
-        if (!reader.read_track(i + 1, pcm_data)) {
-            
-            std::cerr << "Fehler beim Lesen von Track " << i + 1 << std::endl;
-            continue;
-        }
         std::cout << "PCM-Daten: " << pcm_data.size() << " Bytes" << std::endl;
 
         std::string filename;
@@ -85,16 +84,18 @@ int main(int argc, char* argv[]) {
             filename = "track" + std::to_string(i + 1) + ".wav";
         }
 
-        std::cout << "Speichere: " << filename << std::endl;
-        if (!WAVWriter::write(filename, pcm_data, 44100, 2, 16)) {
-            std::cerr << "Fehler beim Speichern von " << filename << std::endl;
+        std::string full_path = output_folder + "/" + filename;
+
+        std::cout << "Speichere: " << full_path << std::endl;
+        if (!WAVWriter::write(full_path, pcm_data, 44100, 2, 16)) {
+            std::cerr << "Fehler beim Speichern von " << full_path << std::endl;
         } else {
-            std::cout << "Gespeichert: " << filename << std::endl;
+            std::cout << "Gespeichert: " << full_path << std::endl;
         }
     }
 
-    char cwd[MAX_PATH];
-    GetCurrentDirectoryA(MAX_PATH, cwd);
-    std::cout << "Arbeitsverzeichnis: " << cwd << std::endl;
+    //char cwd[MAX_PATH];
+    //GetCurrentDirectoryA(MAX_PATH, cwd);
+    //std::cout << "Arbeitsverzeichnis: " << cwd << std::endl;
     return 0;
 }

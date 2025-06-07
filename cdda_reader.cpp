@@ -4,33 +4,31 @@
 #include <cdio/logging.h>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <vector>
 
 CDDAReader::CDDAReader() : cdio(nullptr) {}
 
 bool CDDAReader::open(const std::string& path) {
-    if (path.empty()) {
-        cdio = cdio_open(NULL, DRIVER_DEVICE);  // echtes CD-Laufwerk
+    const struct {
+        const char* name;
+        driver_id_t driver;
+    } driver_options[] = {
+        { "BINCUE",  DRIVER_BINCUE  },
+        { "NRG",     DRIVER_NRG     },     // funktioniert nur, wenn libcdio NRG unterstützt
+        { "DEVICE",  DRIVER_DEVICE  },
+        { "WIN32",   DRIVER_WIN32   },
+    };
+
+    for (const auto& entry : driver_options) {
+        cdio = cdio_open(path.empty() ? nullptr : path.c_str(), entry.driver);
         if (cdio) {
-            std::cout << "[CDDAReader] CD-Laufwerk geöffnet.\n";
+            std::cout << "[CDDAReader] Geöffnet mit: " << entry.name << "\n";
             return true;
         }
     }
 
-    // Nur die funktionierenden Treiber unter MinGW testen
-    cdio = cdio_open(path.c_str(), DRIVER_BINCUE);
-    if (cdio) {
-        std::cout << "[CDDAReader] CUE/BIN geöffnet.\n";
-        return true;
-    }
-
-    cdio = cdio_open(path.c_str(), DRIVER_DEVICE);  // Fallback
-    if (cdio) {
-        std::cout << "[CDDAReader] Gerät geöffnet (Fallback).\n";
-        return true;
-    }
-
-    std::cerr << "[CDDAReader] Konnte Quelle nicht öffnen: " << path << "\n";
+    std::cerr << "[CDDAReader] Öffnen fehlgeschlagen: " << path << "\n";
     return false;
 }
 
@@ -79,17 +77,29 @@ bool CDDAReader::read_track(int track_number, std::vector<uint8_t>& pcm_out) {
     const size_t bytes_per_sector = CDIO_CD_FRAMESIZE_RAW;
     pcm_out.resize(total_sectors * bytes_per_sector);
 
+    std::cout << "[CDDAReader] Lese Track " << track_number << ": Sektoren " << start << " bis " << end << " (" << total_sectors << " Sektoren)\n";
+
     for (long i = 0; i < total_sectors; ++i) {
         unsigned char* buffer = &pcm_out[i * bytes_per_sector];
-        int read = cdio_read_audio_sector(cdio, buffer, start + i);
-        if (read != 0) {
-            std::cerr << "[CDDAReader] Fehler beim Lesen von Sektor " << (start + i) << std::endl;
-            return false;
+        bool success = false;
+
+        for (int attempt = 0; attempt < 5; ++attempt) {
+            int read = cdio_read_audio_sector(cdio, buffer, start + i);
+            if (read == 0) {
+                success = true;
+                break;
+            }
+        }
+
+        if (!success) {
+            std::cerr << "[CDDAReader] Fehler beim Lesen von Sektor " << (start + i) << " nach 5 Versuchen – mit Stille ersetzt.\n";
+            std::memset(buffer, 0, bytes_per_sector);  // Fülle mit Stille
         }
     }
 
     return true;
 }
+
 
 CDDAReader::~CDDAReader() {
     if (cdio) {

@@ -409,4 +409,20 @@ CMakeFiles/cd_iso_to_wav.dir/main.cpp.obj: H:\Devel\CPP\CD2WAV\main.cpp \
  C:/msys64/mingw64/include/commdlg.h C:/msys64/mingw64/include/stralign.h \
  C:/msys64/mingw64/include/sec_api/stralign_s.h \
  C:/msys64/mingw64/include/winsvc.h C:/msys64/mingw64/include/mcx.h \
- C:/msys64/mingw64/include/imm.h
+ C:/msys64/mingw64/include/imm.h \
+ C:/msys64/mingw64/include/c++/15.1.0/filesystem \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/fs_fwd.h \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/chrono.h \
+ C:/msys64/mingw64/include/c++/15.1.0/ratio \
+ C:/msys64/mingw64/include/c++/15.1.0/limits \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/parse_numbers.h \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/fs_path.h \
+ C:/msys64/mingw64/include/c++/15.1.0/codecvt \
+ C:/msys64/mingw64/include/c++/15.1.0/ext/concurrence.h \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/shared_ptr.h \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/shared_ptr_base.h \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/allocated_ptr.h \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/unique_ptr.h \
+ C:/msys64/mingw64/include/c++/15.1.0/ext/aligned_buffer.h \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/fs_dir.h \
+ C:/msys64/mingw64/include/c++/15.1.0/bits/fs_ops.h

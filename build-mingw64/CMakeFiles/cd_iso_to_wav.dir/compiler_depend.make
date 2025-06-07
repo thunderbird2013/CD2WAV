@@ -79,6 +79,7 @@ CMakeFiles/cd_iso_to_wav.dir/cdda_reader.cpp.obj: H:/Devel/CPP/CD2WAV/cdda_reade
   C:/msys64/mingw64/include/c++/15.1.0/cstddef \
   C:/msys64/mingw64/include/c++/15.1.0/cstdio \
   C:/msys64/mingw64/include/c++/15.1.0/cstdlib \
+  C:/msys64/mingw64/include/c++/15.1.0/cstring \
   C:/msys64/mingw64/include/c++/15.1.0/cwchar \
   C:/msys64/mingw64/include/c++/15.1.0/cwctype \
   C:/msys64/mingw64/include/c++/15.1.0/debug/assertions.h \
@@ -155,6 +156,7 @@ CMakeFiles/cd_iso_to_wav.dir/cdda_reader.cpp.obj: H:/Devel/CPP/CD2WAV/cdda_reade
   C:/msys64/mingw64/include/sdks/_mingw_ddk.h \
   C:/msys64/mingw64/include/sec_api/stdio_s.h \
   C:/msys64/mingw64/include/sec_api/stdlib_s.h \
+  C:/msys64/mingw64/include/sec_api/string_s.h \
   C:/msys64/mingw64/include/sec_api/sys/timeb_s.h \
   C:/msys64/mingw64/include/sec_api/wchar_s.h \
   C:/msys64/mingw64/include/signal.h \
@@ -162,6 +164,7 @@ CMakeFiles/cd_iso_to_wav.dir/cdda_reader.cpp.obj: H:/Devel/CPP/CD2WAV/cdda_reade
   C:/msys64/mingw64/include/stdint.h \
   C:/msys64/mingw64/include/stdio.h \
   C:/msys64/mingw64/include/stdlib.h \
+  C:/msys64/mingw64/include/string.h \
   C:/msys64/mingw64/include/swprintf.inl \
   C:/msys64/mingw64/include/sys/timeb.h \
   C:/msys64/mingw64/include/sys/types.h \
@@ -1392,8 +1395,6 @@ C:/msys64/mingw64/include/synchapi.h:
 
 C:/msys64/mingw64/include/stringapiset.h:
 
-C:/msys64/mingw64/include/string.h:
-
 C:/msys64/mingw64/include/stralign.h:
 
 C:/msys64/mingw64/include/stdarg.h:
@@ -1456,7 +1457,15 @@ C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/ia32intrin.h:
 
 C:/msys64/mingw64/include/oleauto.h:
 
-H:/Devel/CPP/CD2WAV/cddb_lookup.cpp:
+C:/msys64/mingw64/include/objidl.h:
+
+C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/amxfp16intrin.h:
+
+C:/msys64/mingw64/include/objbase.h:
+
+C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/mmintrin.h:
+
+C:/msys64/mingw64/include/oaidl.h:
 
 C:/msys64/mingw64/include/cdio/memory.h:
 
@@ -1493,12 +1502,6 @@ C:/msys64/mingw64/include/mmeapi.h:
 C:/msys64/mingw64/include/securitybaseapi.h:
 
 C:/msys64/mingw64/include/c++/15.1.0/typeinfo:
-
-C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/pmmintrin.h:
-
-C:/msys64/mingw64/include/cdio/paranoia/cdda.h:
-
-C:/msys64/mingw64/include/c++/15.1.0/type_traits:
 
 C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/amxcomplexintrin.h:
 
@@ -1617,6 +1620,12 @@ C:/msys64/mingw64/include/c++/15.1.0/bits/vector.tcc:
 C:/msys64/mingw64/include/c++/15.1.0/bits/string_view.tcc:
 
 C:/msys64/mingw64/include/combaseapi.h:
+
+C:/msys64/mingw64/include/c++/15.1.0/cstring:
+
+C:/msys64/mingw64/include/basetsd.h:
+
+C:/msys64/mingw64/include/bcrypt.h:
 
 C:/msys64/mingw64/include/c++/15.1.0/cstddef:
 
@@ -1840,6 +1849,14 @@ C:/msys64/mingw64/include/limits.h:
 
 C:/msys64/mingw64/include/c++/15.1.0/bits/stl_bvector.h:
 
+C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/pmmintrin.h:
+
+C:/msys64/mingw64/include/c++/15.1.0/type_traits:
+
+C:/msys64/mingw64/include/cdio/paranoia/cdda.h:
+
+H:/Devel/CPP/CD2WAV/cddb_lookup.cpp:
+
 C:/msys64/mingw64/include/cdio/paranoia/paranoia.h:
 
 C:/msys64/mingw64/include/cdio/read.h:
@@ -1936,6 +1953,10 @@ C:/msys64/mingw64/include/driverspecs.h:
 
 C:/msys64/mingw64/include/stdio.h:
 
+C:/msys64/mingw64/include/string.h:
+
+C:/msys64/mingw64/include/mmiscapi.h:
+
 C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/avx512vbmivlintrin.h:
 
 C:/msys64/mingw64/include/c++/15.1.0/x86_64-w64-mingw32/bits/gthr-default.h:
@@ -2025,10 +2046,6 @@ C:/msys64/mingw64/include/apiset.h:
 C:/msys64/mingw64/include/wctype.h:
 
 C:/msys64/mingw64/include/apisetcconv.h:
-
-C:/msys64/mingw64/include/basetsd.h:
-
-C:/msys64/mingw64/include/bcrypt.h:
 
 H:/Devel/CPP/CD2WAV/wav_writer.cpp:
 
@@ -2128,20 +2145,8 @@ C:/msys64/mingw64/include/cddb/cddb_disc.h:
 
 C:/msys64/mingw64/include/minwindef.h:
 
-C:/msys64/mingw64/include/mmiscapi.h:
-
-C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/mmintrin.h:
-
-C:/msys64/mingw64/include/oaidl.h:
-
 C:/msys64/mingw64/include/namespaceapi.h:
 
 C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/avx512bf16intrin.h:
 
 C:/msys64/mingw64/include/ncrypt.h:
-
-C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/15.1.0/include/amxfp16intrin.h:
-
-C:/msys64/mingw64/include/objbase.h:
-
-C:/msys64/mingw64/include/objidl.h:
