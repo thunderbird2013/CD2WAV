@@ -167,4 +167,7 @@ CMakeFiles/cd_iso_to_wav.dir/cdda_reader.cpp.obj: \
  C:/msys64/mingw64/include/c++/15.1.0/bits/codecvt.h \
  C:/msys64/mingw64/include/c++/15.1.0/x86_64-w64-mingw32/bits/basic_file.h \
  C:/msys64/mingw64/include/c++/15.1.0/x86_64-w64-mingw32/bits/c++io.h \
- C:/msys64/mingw64/include/c++/15.1.0/bits/fstream.tcc
+ C:/msys64/mingw64/include/c++/15.1.0/bits/fstream.tcc \
+ C:/msys64/mingw64/include/c++/15.1.0/cstring \
+ C:/msys64/mingw64/include/string.h \
+ C:/msys64/mingw64/include/sec_api/string_s.h
