@@ -1,37 +1,36 @@
 // cdda_reader.cpp
 #include "cdda_reader.hpp"
 #include <cdio/cdio.h>
-#include <cdio/cd_types.h>
 #include <cdio/logging.h>
-#include <cdio/cdtext.h>
-#include <cdio/audio.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 CDDAReader::CDDAReader() : cdio(nullptr) {}
 
 bool CDDAReader::open(const std::string& path) {
-    static const std::vector<CdIoDriver_t> drivers = {
-        DRIVER_BINCUE,
-        DRIVER_CDRDAO,
-        DRIVER_DEVICE,
-        DRIVER_FITS,
-        DRIVER_IODAS,
-        DRIVER_ISO,
-        DRIVER_NRG,
-        DRIVER_EXTERNAL,
-        DRIVER_UNKNOWN  // Letzter Versuch: automatische Erkennung
-    };
-
-    for (auto driver : drivers) {
-        cdio = cdio_open(path.c_str(), driver);
+    if (path.empty()) {
+        cdio = cdio_open(NULL, DRIVER_DEVICE);  // echtes CD-Laufwerk
         if (cdio) {
-            std::cout << "[CDDAReader] CD-Quelle geöffnet mit Treiber: " << cdio_driver_describe(driver) << std::endl;
+            std::cout << "[CDDAReader] CD-Laufwerk geöffnet.\n";
             return true;
         }
     }
 
-    std::cerr << "[CDDAReader] Konnte CD-Quelle nicht öffnen (alle Treiber fehlgeschlagen)." << std::endl;
+    // Nur die funktionierenden Treiber unter MinGW testen
+    cdio = cdio_open(path.c_str(), DRIVER_BINCUE);
+    if (cdio) {
+        std::cout << "[CDDAReader] CUE/BIN geöffnet.\n";
+        return true;
+    }
+
+    cdio = cdio_open(path.c_str(), DRIVER_DEVICE);  // Fallback
+    if (cdio) {
+        std::cout << "[CDDAReader] Gerät geöffnet (Fallback).\n";
+        return true;
+    }
+
+    std::cerr << "[CDDAReader] Konnte Quelle nicht öffnen: " << path << "\n";
     return false;
 }
 

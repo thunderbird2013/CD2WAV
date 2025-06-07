@@ -1,0 +1,13 @@
+H:/Devel/CPP/CD2WAV/dist/cd_iso_to_wav.exe
+H:/Devel/CPP/CD2WAV/dist/libcdio-19.dll
+H:/Devel/CPP/CD2WAV/dist/libcdio_cdda-2.dll
+H:/Devel/CPP/CD2WAV/dist/libcdio_paranoia-2.dll
+H:/Devel/CPP/CD2WAV/dist/libcddb-2.dll
+H:/Devel/CPP/CD2WAV/dist/libgcc_s_seh-1.dll
+H:/Devel/CPP/CD2WAV/dist/libstdc++-6.dll
+H:/Devel/CPP/CD2WAV/dist/libiconv-2.dll
+H:/Devel/CPP/CD2WAV/dist/libwinpthread-1.dll
+H:/Devel/CPP/CD2WAV/dist/libtre-5.dll
+H:/Devel/CPP/CD2WAV/dist/libsystre-0.dll
+H:/Devel/CPP/CD2WAV/dist/libintl-8.dll
+H:/Devel/CPP/CD2WAV/dist/./cd_iso_to_wav.exe

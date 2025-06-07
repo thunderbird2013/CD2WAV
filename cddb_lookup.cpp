@@ -8,8 +8,10 @@ bool CDDBLookup::fetch_metadata(const std::vector<int>& track_offsets, int disc_
     if (!conn) return false;
 
     cddb_set_server_name(conn, "gnudb.gnudb.org");
+    cddb_set_http_path_query(conn, "/~cddb/cddb.cgi");
     cddb_set_server_port(conn, 80);
    // cddb_set_server_mirror(conn, true);
+    cddb_set_charset(conn, "UTF-8");
 
     cddb_disc_t* disc = cddb_disc_new();
     cddb_disc_set_length(disc, disc_length_frames / 75); // Sekunden
@@ -50,6 +52,8 @@ bool CDDBLookup::fetch_metadata(const std::vector<int>& track_offsets, int disc_
         info.tracks.push_back(tinfo);
     }
 
+    std::cerr << "DiscID: " << std::hex << cddb_disc_get_discid(disc) << std::endl;
+    
     cddb_disc_destroy(disc);
     cddb_destroy(conn);
     return true;

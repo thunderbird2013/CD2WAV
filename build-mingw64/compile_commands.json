@@ -1,0 +1,26 @@
+[
+{
+  "directory": "H:/Devel/CPP/CD2WAV/build-mingw64",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe   -O3 -DNDEBUG -O3 -s -DNDEBUG -std=gnu++17 -o CMakeFiles\\cd_iso_to_wav.dir\\main.cpp.obj -c H:\\Devel\\CPP\\CD2WAV\\main.cpp",
+  "file": "H:/Devel/CPP/CD2WAV/main.cpp",
+  "output": "CMakeFiles/cd_iso_to_wav.dir/main.cpp.obj"
+},
+{
+  "directory": "H:/Devel/CPP/CD2WAV/build-mingw64",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe   -O3 -DNDEBUG -O3 -s -DNDEBUG -std=gnu++17 -o CMakeFiles\\cd_iso_to_wav.dir\\cdda_reader.cpp.obj -c H:\\Devel\\CPP\\CD2WAV\\cdda_reader.cpp",
+  "file": "H:/Devel/CPP/CD2WAV/cdda_reader.cpp",
+  "output": "CMakeFiles/cd_iso_to_wav.dir/cdda_reader.cpp.obj"
+},
+{
+  "directory": "H:/Devel/CPP/CD2WAV/build-mingw64",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe   -O3 -DNDEBUG -O3 -s -DNDEBUG -std=gnu++17 -o CMakeFiles\\cd_iso_to_wav.dir\\wav_writer.cpp.obj -c H:\\Devel\\CPP\\CD2WAV\\wav_writer.cpp",
+  "file": "H:/Devel/CPP/CD2WAV/wav_writer.cpp",
+  "output": "CMakeFiles/cd_iso_to_wav.dir/wav_writer.cpp.obj"
+},
+{
+  "directory": "H:/Devel/CPP/CD2WAV/build-mingw64",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe   -O3 -DNDEBUG -O3 -s -DNDEBUG -std=gnu++17 -o CMakeFiles\\cd_iso_to_wav.dir\\cddb_lookup.cpp.obj -c H:\\Devel\\CPP\\CD2WAV\\cddb_lookup.cpp",
+  "file": "H:/Devel/CPP/CD2WAV/cddb_lookup.cpp",
+  "output": "CMakeFiles/cd_iso_to_wav.dir/cddb_lookup.cpp.obj"
+}
+]
