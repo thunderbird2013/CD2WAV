@@ -13,7 +13,8 @@ bool CDDAReader::open(const std::string& path) {
     const struct {
         const char* name;
         driver_id_t driver;
-    } driver_options[] = {
+        } 
+        driver_options[] =          {
         { "BINCUE",  DRIVER_BINCUE  },
         { "NRG",     DRIVER_NRG     },     // funktioniert nur, wenn libcdio NRG unterstützt
         { "DEVICE",  DRIVER_DEVICE  },
@@ -57,43 +58,72 @@ int CDDAReader::get_total_disc_length_frames() const {
 }
 
 bool CDDAReader::read_track(int track_number, std::vector<uint8_t>& pcm_out) {
-    if (!cdio) return false;
+    if (!cdio) {
+        std::cerr << "[CDDAReader] cdio nicht initialisiert.\n";
+        return false;
+    }
 
     lsn_t start = cdio_get_track_lsn(cdio, track_number);
     lsn_t end;
 
+    // Berechne End-LSN abhängig vom Track
     if (track_number < last_track) {
         end = cdio_get_track_lsn(cdio, track_number + 1) - 1;
     } else {
-        end = cdio_get_disc_last_lsn(cdio);
+        end = cdio_get_disc_last_lsn(cdio) - 1;  // Letzter gültiger Sektor (inklusiv)
     }
 
-    if (start == CDIO_INVALID_LSN || end == CDIO_INVALID_LSN || end <= start) {
-        std::cerr << "[CDDAReader] Ungültiger LSN-Bereich für Track " << track_number << std::endl;
+    // Sicherheitskappe auf gültige Disc-Grenze
+    lsn_t disc_max = cdio_get_disc_last_lsn(cdio) - 1;
+    if (end > disc_max) end = disc_max;
+
+    if (start == CDIO_INVALID_LSN || end == CDIO_INVALID_LSN || end < start) {
+        std::cerr << "[CDDAReader] Ungültiger LSN-Bereich für Track " << track_number << ": " << start << " bis " << end << "\n";
         return false;
     }
 
-    long total_sectors = end - start + 1;
+    const long total_sectors = end - start + 1;
     const size_t bytes_per_sector = CDIO_CD_FRAMESIZE_RAW;
-    pcm_out.resize(total_sectors * bytes_per_sector);
+    const size_t total_bytes = static_cast<size_t>(total_sectors) * bytes_per_sector;
 
-    std::cout << "[CDDAReader] Lese Track " << track_number << ": Sektoren " << start << " bis " << end << " (" << total_sectors << " Sektoren)\n";
+    // Schutz vor zu großer Allokation
+    if (total_sectors <= 0 || total_bytes == 0 || total_bytes > 100 * 1024 * 1024) {
+        std::cerr << "[CDDAReader] Ungültige oder zu große Puffergröße für Track " << track_number << "\n";
+        return false;
+    }
+
+    try {
+        pcm_out.resize(total_bytes);
+    } catch (...) {
+        std::cerr << "[CDDAReader] Speicherreservierung fehlgeschlagen für Track " << track_number << "\n";
+        return false;
+    }
+
+    std::cout << "[CDDAReader] Lese Track " << track_number
+              << ": Sektoren " << start << " bis " << end
+              << " (" << total_sectors << " Sektoren)\n";
 
     for (long i = 0; i < total_sectors; ++i) {
-        unsigned char* buffer = &pcm_out[i * bytes_per_sector];
+        const size_t offset = static_cast<size_t>(i) * bytes_per_sector;
+
+        if (offset + bytes_per_sector > pcm_out.size()) {
+            std::cerr << "[CDDAReader] Puffergrenze überschritten bei Sektorindex " << i << "\n";
+            break;
+        }
+
+        unsigned char* buffer = &pcm_out[offset];
         bool success = false;
 
         for (int attempt = 0; attempt < 5; ++attempt) {
-            int read = cdio_read_audio_sector(cdio, buffer, start + i);
-            if (read == 0) {
+            if (cdio_read_audio_sector(cdio, buffer, start + i) == 0) {
                 success = true;
                 break;
             }
         }
 
         if (!success) {
-            std::cerr << "[CDDAReader] Fehler beim Lesen von Sektor " << (start + i) << " nach 5 Versuchen – mit Stille ersetzt.\n";
-            std::memset(buffer, 0, bytes_per_sector);  // Fülle mit Stille
+            std::cerr << "[CDDAReader] Fehler beim Lesen von Sektor " << (start + i) << " – ersetzt mit Stille.\n";
+            std::memset(buffer, 0, bytes_per_sector);
         }
     }
 

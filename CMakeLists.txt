@@ -30,6 +30,7 @@ add_executable(cd_iso_to_wav
     cdda_reader.cpp
     wav_writer.cpp
     cddb_lookup.cpp
+    crash_handler.cpp
     ${WINDOWS_ICON}
 )
 
