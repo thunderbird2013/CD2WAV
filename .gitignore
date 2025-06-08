@@ -1,0 +1,28 @@
+dist/
+.vscode/
+# Build-Dateien
+/build/
+/dist/
+*.o
+*.obj
+*.exe
+
+# IDEs/Editoren
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Systemdateien
+.DS_Store
+Thumbs.db
+
+# Temporäres
+*.log
+*.tmp
+*.bak
+
+# Secrets
+.env
+*.key
+*.pem
