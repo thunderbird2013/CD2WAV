@@ -2,7 +2,7 @@
 
 ###############################################################################
 # 📦 build.sh – Build-Skript für cd_iso_to_wav
-# Autor      : Thomas Kümper
+# Autor      : Matthias Stoltze
 # Jahr       : 2025
 # Lizenz     : MIT (oder eigene Lizenz hier eintragen)
 ###############################################################################
