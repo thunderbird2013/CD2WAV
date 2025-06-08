@@ -12,9 +12,10 @@
 namespace fs = std::filesystem;
 
 int main(int argc, char* argv[]) {
+
+    SetConsoleOutputCP(CP_UTF8);    // UTF-8 für die Konsole  
     
     install_crash_handler();        // Crash-Handler installieren 
-    MessageBoxA(nullptr, "Crash-Handler installiert", "OK", MB_OK);
     
     HWND hwnd = GetConsoleWindow();
     HICON hIcon = (HICON)LoadImage(NULL, "myapp.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
@@ -22,8 +23,6 @@ int main(int argc, char* argv[]) {
         SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
         SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
     }
-
-    SetConsoleOutputCP(CP_UTF8);    // UTF-8 für die Konsole  
 
     std::string input_path;
     if (argc > 1) {

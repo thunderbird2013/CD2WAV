@@ -1,3 +1,4 @@
+#include <windows.h>
 #include "crash_handler.hpp"
 #include <fstream>
 #include <ctime>
@@ -7,14 +8,18 @@
 #include <iomanip>
 #include <sstream>
 #include <cstdlib>
+#include <unordered_map>
 
 namespace fs = std::filesystem;
+std::string func_name = "<unbekannt>";
+std::string file_name = "<unbekannt>";
+DWORD line_num = 0;
 
-typedef BOOL(WINAPI* MiniDumpWriteDump_t)(
-    HANDLE, DWORD, HANDLE, MINIDUMP_TYPE,
-    const PMINIDUMP_EXCEPTION_INFORMATION,
-    const PMINIDUMP_USER_STREAM_INFORMATION,
-    const PMINIDUMP_CALLBACK_INFORMATION);
+
+using MiniDumpWriteDump_t = BOOL(WINAPI*)(HANDLE, DWORD, HANDLE, MINIDUMP_TYPE,
+                                          const PMINIDUMP_EXCEPTION_INFORMATION,
+                                          const PMINIDUMP_USER_STREAM_INFORMATION,
+                                          const PMINIDUMP_CALLBACK_INFORMATION);
 
 std::string current_timestamp_string() {
     std::time_t now = std::time(nullptr);
@@ -43,133 +48,127 @@ void write_crash_dump(EXCEPTION_POINTERS* pException, const std::string& path) {
     CloseHandle(hFile);
 }
 
-LONG WINAPI global_exception_handler(EXCEPTION_POINTERS* pException) {
+LONG WINAPI global_exception_handler(EXCEPTION_POINTERS* exception_info) {
+    const std::unordered_map<DWORD, std::string> exception_strings = {
+        { EXCEPTION_ACCESS_VIOLATION,           "Speicherzugriffsfehler (Access Violation)" },
+        { EXCEPTION_ARRAY_BOUNDS_EXCEEDED,      "Array-Grenzüberschreitung" },
+        { EXCEPTION_DATATYPE_MISALIGNMENT,      "Datenfehlanpassung" },
+        { EXCEPTION_FLT_DIVIDE_BY_ZERO,         "Division durch Null (float)" },
+        { EXCEPTION_INT_DIVIDE_BY_ZERO,         "Division durch Null (int)" },
+        { EXCEPTION_FLT_OVERFLOW,               "Gleitkommaüberlauf" },
+        { EXCEPTION_FLT_UNDERFLOW,              "Gleitkommaunterlauf" },
+        { EXCEPTION_ILLEGAL_INSTRUCTION,        "Ungültige CPU-Instruktion" },
+        { EXCEPTION_IN_PAGE_ERROR,              "Zugriffsfehler bei Paging" },
+        { EXCEPTION_INT_OVERFLOW,               "Ganzzahlüberlauf (int)" },
+        { EXCEPTION_INVALID_DISPOSITION,        "Ungültige Ausnahmebehandlung" },
+        { EXCEPTION_NONCONTINUABLE_EXCEPTION,   "Nicht fortsetzbare Ausnahme" },
+        { EXCEPTION_PRIV_INSTRUCTION,           "Privilegierte CPU-Instruktion" },
+        { EXCEPTION_STACK_OVERFLOW,             "Stacküberlauf" },
+        { EXCEPTION_GUARD_PAGE,                 "Zugriff auf GUARD-Seite" },
+        { CONTROL_C_EXIT,                       "Strg+C oder Break" }
+    };
 
-    // Zeitstempel zuerst holen!
-    std::string timestamp = current_timestamp_string();
+    auto code = exception_info->ExceptionRecord->ExceptionCode;
+    auto addr = exception_info->ExceptionRecord->ExceptionAddress;
 
-    // Absoluter Pfad zur .exe bestimmen
+    std::time_t now = std::time(nullptr);
+    std::tm local_tm;
+    localtime_s(&local_tm, &now);
+    std::ostringstream timestamp_ss;
+    timestamp_ss << std::put_time(&local_tm, "%Y-%m-%d_%H-%M-%S");
+    std::string timestamp = timestamp_ss.str();
+
     char exe_path[MAX_PATH];
     GetModuleFileNameA(nullptr, exe_path, MAX_PATH);
-    std::filesystem::path base_path = std::filesystem::path(exe_path).parent_path();
-    std::filesystem::path crash_dir = base_path / "crash";
+    fs::path base_path = fs::path(exe_path).parent_path();
+    fs::path crash_dir = base_path / "crash";
+    fs::create_directories(crash_dir);
 
-    // Ordner sicher erstellen
-    std::error_code ec;
-    fs::create_directory(crash_dir, ec);
+    std::string dump_file = (crash_dir / ("dump_" + timestamp + ".dmp")).string();
+    std::string log_file = (crash_dir / "crash.log").string();
 
-    // Volle Pfade bauen
-    std::filesystem::path log_file_path  = crash_dir / ("log_"  + timestamp + ".log");
-    std::filesystem::path dump_file_path = crash_dir / ("dump_" + timestamp + ".dmp");
+    HANDLE hFile = CreateFileA(dump_file.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (hFile != INVALID_HANDLE_VALUE) {
+        MINIDUMP_EXCEPTION_INFORMATION mdei;
+        mdei.ThreadId = GetCurrentThreadId();
+        mdei.ExceptionPointers = exception_info;
+        mdei.ClientPointers = FALSE;
 
-    std::string log_file  = log_file_path.string();
-    std::string dump_file = dump_file_path.string();
-
-
-    DWORD code = pException->ExceptionRecord->ExceptionCode;
-    PVOID addr = pException->ExceptionRecord->ExceptionAddress;
-
-    std::string cause;
-    switch (code) {
-    case EXCEPTION_ACCESS_VIOLATION:
-        cause = "Speicherzugriffsfehler (Access Violation)";
-        break;
-    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
-        cause = "Array-Grenzüberschreitung";
-        break;
-    case EXCEPTION_DATATYPE_MISALIGNMENT:
-        cause = "Datenfehlanpassung (Datentyp nicht korrekt ausgerichtet)";
-        break;
-    case EXCEPTION_FLT_DIVIDE_BY_ZERO:
-        cause = "Division durch Null (float)";
-        break;
-    case EXCEPTION_INT_DIVIDE_BY_ZERO:
-        cause = "Division durch Null (int)";
-        break;
-    case EXCEPTION_FLT_OVERFLOW:
-        cause = "Gleitkommaüberlauf";
-        break;
-    case EXCEPTION_FLT_UNDERFLOW:
-        cause = "Gleitkommaunterlauf";
-        break;
-    case EXCEPTION_ILLEGAL_INSTRUCTION:
-        cause = "Ungültige CPU-Instruktion";
-        break;
-    case EXCEPTION_IN_PAGE_ERROR:
-        cause = "Zugriffsfehler bei Paging";
-        break;
-    case EXCEPTION_INT_OVERFLOW:
-        cause = "Ganzzahlüberlauf (int)";
-        break;
-    case EXCEPTION_INVALID_DISPOSITION:
-        cause = "Ungültige Ausnahmebehandlung";
-        break;
-    case EXCEPTION_NONCONTINUABLE_EXCEPTION:
-        cause = "Nicht fortsetzbare Ausnahme";
-        break;
-    case EXCEPTION_PRIV_INSTRUCTION:
-        cause = "Privilegierte CPU-Instruktion im User-Modus";
-        break;
-    case EXCEPTION_STACK_OVERFLOW:
-        cause = "Stacküberlauf";
-        break;
-    case EXCEPTION_GUARD_PAGE:
-        cause = "Schreibversuch auf GUARD-Seite";
-        break;
-    case CONTROL_C_EXIT:
-        cause = "Strg+C oder Break-Signal";
-        break;
-    default:
-        cause = "Unbekannte Ausnahme";
-        break;
+        MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &mdei, nullptr, nullptr);
+        CloseHandle(hFile);
     }
 
-   MessageBoxA(nullptr, log_file.c_str(), "Log-Pfad", MB_OK);
-   std::ofstream log(log_file);
+    std::string cause = "Unbekannte Ausnahme";
+    auto it = exception_strings.find(code);
+    if (it != exception_strings.end()) cause = it->second;
+
+    SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
+    SymInitialize(GetCurrentProcess(), NULL, TRUE);
+
+    char symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME];
+    PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)symbolBuffer;
+    pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+    pSymbol->MaxNameLen = MAX_SYM_NAME;
+
+    std::string function_name = "[nicht auflösbar]";
+    DWORD64 displacement = 0;
+    if (SymFromAddr(GetCurrentProcess(), (DWORD64)addr, &displacement, pSymbol)) {
+        function_name = std::string(pSymbol->Name) + " + 0x" + std::to_string(displacement);
+    }
+
+    IMAGEHLP_LINE64 line;
+    DWORD lineDisp = 0;
+    ZeroMemory(&line, sizeof(line));
+    line.SizeOfStruct = sizeof(line);
+    std::string file_info = "[nicht verfügbar]";
+    if (SymGetLineFromAddr64(GetCurrentProcess(), (DWORD64)addr, &lineDisp, &line)) {
+        file_info = std::string(line.FileName) + ":" + std::to_string(line.LineNumber);
+    }
+
+    DWORD pid = GetCurrentProcessId();
+    DWORD tid = GetCurrentThreadId();
+
+    std::ofstream log(log_file);
     if (log) {
         log << "[CRASH_HANDLER] Zeit: " << timestamp << "\n";
         log << "Exception Code: 0x" << std::hex << code << " (" << cause << ")\n";
         log << "Exception Addr: " << addr << "\n";
+        log << "Funktion: " << function_name << "\n";
+        log << "Quelle:   " << file_info << "\n";
         log << "Dump File: " << dump_file << "\n";
-        log << "Erkannt in: crash_handler.cpp → global_exception_handler()\n";
-    } else {
-    // 💥 Fallback, wenn std::ofstream fehlschlägt
-    HANDLE h = CreateFileA(log_file.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-    if (h != INVALID_HANDLE_VALUE) {
-            std::ostringstream fallback;
-            fallback << "[CRASH_HANDLER - Fallback] Zeit: " << timestamp << "\r\n";
-            fallback << "Exception Code: 0x" << std::hex << code << " (" << cause << ")\r\n";
-            fallback << "Exception Addr: " << addr << "\r\n";
-            fallback << "Dump File: " << dump_file << "\r\n";
-            fallback << "Erkannt in: crash_handler.cpp → global_exception_handler()\r\n";
+        log << "Prozess-ID: " << pid << "\n";
+        log << "Thread-ID:  " << tid << "\n";
+        log << "EXE-Pfad:    " << exe_path << "\n";
+        log << "Arbeitsverz: " << fs::current_path().string() << "\n";
 
-            std::string text = fallback.str();
-            DWORD written = 0;
-            WriteFile(h, text.c_str(), static_cast<DWORD>(text.size()), &written, nullptr);
-            CloseHandle(h);
-            } else {
-            // Wenn auch das fehlschlägt, zeig den Fehler direkt an
-            MessageBoxA(nullptr, ("[CRASH_HANDLER] Konnte Log-Datei NICHT schreiben:\n" + log_file).c_str(), "Schwerer Fehler", MB_ICONERROR);
+        if (exception_info && exception_info->ContextRecord) {
+            const CONTEXT* ctx = exception_info->ContextRecord;
+    #ifdef _M_X64
+            log << "RIP: 0x" << std::hex << ctx->Rip << "\n";
+            log << "RSP: 0x" << std::hex << ctx->Rsp << "\n";
+            log << "RAX: 0x" << std::hex << ctx->Rax << "\n";
+            log << "RCX: 0x" << std::hex << ctx->Rcx << "\n";
+    #endif
         }
+
+        log << "Erkannt in: crash_handler.cpp → global_exception_handler()\n";
+        log.flush();
     }
-
-    std::cerr << "[CRASH_HANDLER] Ausnahme erkannt: " << cause << "\n";
-    std::cerr << "[CRASH_HANDLER] Dump gespeichert: " << dump_file << "\n";
-
-    write_crash_dump(pException, dump_file);
-    std::cerr << "[CRASH_HANDLER] Programm wird jetzt beendet\n";
 
     std::ostringstream msg;
     msg << "Crash wurde erkannt!\n\n"
-    << "Typ: " << cause << "\n"
-    << "Code: 0x" << std::hex << code << "\n"
-    << "Adresse: " << addr << "\n\n"
-    << "Dump-Datei:\n" << dump_file << "\n"
-    << "Log-Datei:\n" << log_file;
+        << "Typ: " << cause << "\n"
+        << "Code: 0x" << std::hex << code << "\n"
+        << "Adresse: " << addr << "\n\n"
+        << "Funktion: " << function_name << "\n"
+        << "Quelle:   " << file_info << "\n\n"
+        << "Dump-Datei:\n" << dump_file << "\n"
+        << "Log-Datei:\n" << log_file;
 
     MessageBoxA(nullptr, msg.str().c_str(), "Crash erkannt", MB_ICONERROR | MB_OK);
 
-    std::exit(EXIT_FAILURE);
+    ExitProcess(1);
+    return EXCEPTION_EXECUTE_HANDLER;
 }
 
 void install_crash_handler() {
