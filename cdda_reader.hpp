@@ -13,10 +13,10 @@ public:
 
     bool open(const std::string& path);          // CD oder ISO öffnen
     bool load_toc();                             // TOC laden
-    int get_track_count() const;                 // Track-Anzahl
+    int  get_track_count() const;                 // Track-Anzahl
     bool read_track(int track_number, std::vector<uint8_t>& pcm_out); // PCM lesen
-    int get_track_offset(int track_number) const;
-    int get_total_disc_length_frames() const;
+    int  get_track_offset(int track_number) const;
+    int  get_total_disc_length_frames() const;
 
 private:
     CdIo_t* cdio = nullptr;

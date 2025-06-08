@@ -4,7 +4,7 @@
 # 📦 build.sh – Build-Skript für cd_iso_to_wav
 # Autor      : Matthias Stoltze
 # Jahr       : 2025
-# Lizenz     : MIT (oder eigene Lizenz hier eintragen)
+# Lizenz     : Dieses Projekt ist frei verwendbar zu Lern- und Forschungszwecken. Kein kommerzieller Support.
 ###############################################################################
 
 # ⛔ Kein Parameter? Dann Hilfe anzeigen
